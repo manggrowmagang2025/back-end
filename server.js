@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
-import "./config/db.js";
+import { connectDb } from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import plantRoutes from "./routes/plants.routes.js";
 import productRoutes from "./routes/products.routes.js";
@@ -30,4 +30,10 @@ app.use((err, req, res, next)=>{
 });
 
 const port = process.env.PORT || 8080;
-app.listen(port, ()=>console.log("API running on", port));
+
+const start = async ()=>{
+  await connectDb();
+  app.listen(port, ()=>console.log("API running on", port));
+};
+
+start();
