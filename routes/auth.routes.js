@@ -2,13 +2,14 @@ import { Router } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { requireAuth } from "../middleware/auth.js";
+import { getJwtSecret } from "../utils/jwt.js";
 
 const r = Router();
 
 const signToken = (user)=>{
   return jwt.sign(
     { id:user.id, role:user.role, email:user.email, name:user.name },
-    process.env.JWT_SECRET,
+    getJwtSecret(),
     { expiresIn:"7d" }
   );
 };

@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const {
-  MYSQL_HOST = "localhost",
+  MYSQL_HOST = "192.168.1.6",
   MYSQL_PORT = "3306",
   MYSQL_USER = "root",
   MYSQL_PASSWORD = "",

@@ -1,9 +1,44 @@
 import { Router } from "express";
 import Plant from "../models/Plant.js";
 import { requireAuth } from "../middleware/auth.js";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 const r = Router();
 
+const uploadRoot = path.join(process.cwd(), "uploads", "plants");
+fs.mkdirSync(uploadRoot, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadRoot),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const base = path.basename(file.originalname, ext).replace(/\s+/g, "-");
+    cb(null, `${Date.now()}-${base}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) return cb(null, true);
+    cb(new Error("Tipe file harus berupa gambar"));
+  }
+});
+
 r.use(requireAuth);
+
+r.post("/upload-photo", (req, res, next) => {
+  upload.single("photo")(req, res, (err) => {
+    if (err) return next(err);
+    if (!req.file) {
+      return res.status(400).json({ message: "File gambar diperlukan" });
+    }
+    const relativePath = `/uploads/plants/${req.file.filename}`;
+    res.json({ url: relativePath });
+  });
+});
 
 r.get("/", async (req,res,next)=>{
   try{
